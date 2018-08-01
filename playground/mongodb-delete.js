@@ -51,7 +51,7 @@ MongoClient.connect(connectionUrl, { useNewUrlParser: true }, (err, client)=>{
     // });
 
     // findOneAndDelete
-    db.collection('users').findOneAndDelete({_id:ObjectID('5b6215e9bea3593591805e80')}).then( (resp) => {
+    db.collection('users').findOneAndDelete({_id: new ObjectID('5b6215e9bea3593591805e80')}).then( (resp) => {
         console.log(resp);
     }).catch( (err) => {
         console.log("Unable to delete record", err);
