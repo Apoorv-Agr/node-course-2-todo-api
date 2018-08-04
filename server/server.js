@@ -1,6 +1,8 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 
+const {ObjectID} = require('mongodb');
+
 const {mongoose} = require('./db/mongoose');
 const {Users} = require('./models/user');
 const {Todo} = require('./models/todo');
@@ -35,6 +37,33 @@ app.get('/todos', (req,resp) =>{
         resp.status(400).send(e);
     });
 })
+
+// GET /todos/123
+app.get('/todos/:id', (req,resp)=>{
+    var id = req.params.id;
+    //resp.send(id);
+    
+    if(!ObjectID.isValid(id)){
+        resp.status(404).send({
+            error : 'Invalid ID'
+        });
+    }else{
+        Todo.findById(id).then ( (dbresp) => {
+            if(!dbresp){
+                resp.status(400).send({
+                    error : 'Data not found'
+                })
+            }else{
+                resp.send({todo :dbresp});
+            }
+        }).catch( (e) => {
+            resp.status(400).send({
+                error : 'connection issue'
+            });
+        });
+    }
+    
+});
 
 
 app.listen(3000 , () => {
