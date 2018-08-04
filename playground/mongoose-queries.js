@@ -10,7 +10,7 @@ if( ObjectID.isValid(userId) ) {
        if(!userbyid){
            console.log('User Not found');
        }else{
-           console.log("List of User by id : ",userbyid);
+           console.log("List of User by id : ",JSON.stringify(userbyid, undefined, 2));
        }       
    }).catch( (e)=>{
        console.log(e);
