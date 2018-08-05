@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const express = require('express');
 const bodyParser = require('body-parser');
 
@@ -65,6 +66,62 @@ app.get('/todos/:id', (req,resp)=>{
         });
     }
     
+});
+// app.delete()
+app.delete('/todo/:id', (req,resp) => { 
+    var params_id = req.params.id;
+    // resp.send({
+    //     id : params_id
+    // });
+    if( !ObjectID.isValid(params_id) ){
+        resp.status(404).send({
+            error : 'Invalid id'
+        });
+    }else{
+        Todo.findByIdAndRemove(params_id).then( (todo) => {
+            if(todo){
+                resp.status(200).send({
+                    todo
+                });
+            }else{
+                resp.status(404).send({
+                    error : 'Id can not be found'
+                });
+            }
+        }).catch( (err)=>{
+            
+            resp.status(400).send({
+                error : 'Something went wrong'
+            });
+        })
+    }
+    // 404 for invalid id
+    // success :- if no doc 404 else send 200
+    // error 40    
+});
+
+app.patch('/todos/:id', (req,resp) =>{
+    var id = req.params.id;
+    var body = _.pick(req.body, ['text','completed']);
+    if( !ObjectID.isValid(id) ){
+        return resp.status(404).send({
+            error : 'Invalid id'
+        });
+    }
+    if(_.isBoolean(body.completed) && body.completed){
+        body.completedAt = new Date().getTime();
+    }else{
+        body.completed = false;
+        body.completedAt = null;
+    }
+
+    Todo.findByIdAndUpdate(id,{$set :body}, {new : true}).then( (todo) => {
+        if(!todo)
+            return resp.status(404).send({error : 'id not found'});
+        return resp.status(200).send({todo});
+    }).catch( (e) =>{
+        return resp.status(400).send({error:'Unable to update data'});
+    });
 });
 
 
