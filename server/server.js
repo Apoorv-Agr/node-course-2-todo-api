@@ -5,7 +5,7 @@ const bodyParser = require('body-parser');
 const {ObjectID} = require('mongodb');
 
 const {mongoose} = require('./db/mongoose');
-const {Users} = require('./models/user');
+const {User} = require('./models/user');
 const {Todo} = require('./models/todo');
 
 const port = process.env.PORT || 3000;
@@ -123,6 +123,33 @@ app.patch('/todos/:id', (req,resp) =>{
         return resp.status(400).send({error:'Unable to update data'});
     });
 });
+
+app.post('/user', (req,resp) => {
+    var body = _.pick(req.body, ['email','password']);
+    var user = new User(body);
+    // console.log(User);
+
+    // model methods User
+    // instance method user
+    // User.findByToken
+    user.save().then(()=>{
+        return user.generateAuthToken();
+        // resp.send(saveResp);
+    }).then((token) =>{
+        resp.header('x-auth', token).send(user);
+    }).catch( (e) => {
+        resp.status(400).send({
+            error : 'Some error in saving user',
+            errorDesc : e
+        });
+    });
+});
+
+app.get('/users/me', (req,resp) => {
+    var token  = req.header('x-auth');
+
+    // User.findByToken(token)
+})
 
 
 app.listen(port, () => {
