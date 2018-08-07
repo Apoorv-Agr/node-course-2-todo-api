@@ -147,6 +147,13 @@ app.post('/user', (req,resp) => {
 
 app.get('/users/me', (req,resp) => {
     var token  = req.header('x-auth');
+    //console.log('In server.js : ',token);
+    User.findByToken(token).then( (user) => {
+        if(!user){
+
+        }
+        resp.send(user);
+    })
 
     // User.findByToken(token)
 })
