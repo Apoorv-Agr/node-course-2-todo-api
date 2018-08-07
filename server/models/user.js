@@ -53,16 +53,15 @@ UserSchema.methods.generateAuthToken = function(){
 }
 
 UserSchema.statics.findByToken = function(token){
-    //console.log('In user.js : ',token);
     var User = this;
-    var decoded = jwt.verify(token,'abc123');
-    // try {
-    //     decoded = ;
-    // }catch(e){
-
-    // }
-    // console.log(decoded);
-    
+    var decoded;
+    try {
+        decoded = jwt.verify(token,'abc123');
+    }catch(e){
+        return new Promise((resolve,reject)=>{
+            reject();
+        });
+    }
     return User.findOne({
         '_id' : decoded._id,
         'tokens.token' : token,

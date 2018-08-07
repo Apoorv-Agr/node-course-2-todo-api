@@ -7,6 +7,7 @@ const {ObjectID} = require('mongodb');
 const {mongoose} = require('./db/mongoose');
 const {User} = require('./models/user');
 const {Todo} = require('./models/todo');
+const {authenticate} = require('./../middleware/authenticate');
 
 const port = process.env.PORT || 3000;
 
@@ -145,17 +146,8 @@ app.post('/user', (req,resp) => {
     });
 });
 
-app.get('/users/me', (req,resp) => {
-    var token  = req.header('x-auth');
-    //console.log('In server.js : ',token);
-    User.findByToken(token).then( (user) => {
-        if(!user){
-
-        }
-        resp.send(user);
-    })
-
-    // User.findByToken(token)
+app.get('/users/me', authenticate ,(req,resp) => {
+    resp.send(req.user);
 })
 
 
