@@ -128,8 +128,6 @@ app.patch('/todos/:id', (req,resp) =>{
 app.post('/user', (req,resp) => {
     var body = _.pick(req.body, ['email','password']);
     var user = new User(body);
-    // console.log(User);
-
     // model methods User
     // instance method user
     // User.findByToken
@@ -146,33 +144,37 @@ app.post('/user', (req,resp) => {
     });
 });
 
-app.get('/users/me', authenticate ,(req,resp) => {
+app.get('/users/me', authenticate , (req,resp) => {
     resp.send(req.user);
-})
+});
 
+app.post('/users/login' , (req,resp) => {
+    let email = req.body.email;
+    let pwd = req.body.password;
+
+    User.findByCredentials(email,pwd).then( (user) =>{
+        // resp.send(user);
+        return user.generateAuthToken().then( (token) =>{
+            resp.header('x-auth', token).send(user);
+        });
+    }).catch( (err) =>{
+        resp.status(400).send(err);
+    });
+});
 
 app.listen(port, () => {
-    console.log(`Started on ${port} port`);
-})
-
-
-
-
-
-
+   console.log(`Started on ${port} port`);
+});
 // var newUser = new Users({
-//     email : '  ap@gmail.com '
+//     email : 'ap@gmail.com'
 // }).save().then( (docs) => {
 //     console.log("Data that i saved : ",docs);
 // }).catch( (err)=>{
 //     console.log("Unable to save user ", err);
 // });
 
-
-
 // var newTodo = new Todo({
 //     text : 'Dog Time',
 //     completed : false,
 //     completedAt : Math.floor(Date.now() / 1000)
 // });
-
