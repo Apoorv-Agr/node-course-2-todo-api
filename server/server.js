@@ -46,7 +46,7 @@ app.get('/todos', authenticate, (req,resp) =>{
 })
 
 // GET /todos/123
-app.get('/todos/:id', (req,resp)=>{
+app.get('/todos/:id', authenticate, (req,resp)=>{
     var id = req.params.id;
     //resp.send(id);
     
@@ -55,7 +55,10 @@ app.get('/todos/:id', (req,resp)=>{
             error : 'Invalid ID'
         });
     }else{
-        Todo.findById(id).then ( (dbresp) => {
+        Todo.findOne({
+            _id : id,
+            _creator : req.user._id
+        }).then ( (dbresp) => {
             if(!dbresp){
                 resp.status(400).send({
                     error : 'Data not found'
@@ -72,7 +75,7 @@ app.get('/todos/:id', (req,resp)=>{
     
 });
 // app.delete()
-app.delete('/todo/:id', (req,resp) => { 
+app.delete('/todos/:id', authenticate, (req,resp) => { 
     var params_id = req.params.id;
     // resp.send({
     //     id : params_id
@@ -82,7 +85,11 @@ app.delete('/todo/:id', (req,resp) => {
             error : 'Invalid id'
         });
     }else{
-        Todo.findByIdAndRemove(params_id).then( (todo) => {
+        
+        Todo.findOneAndRemove({
+            _id :params_id,
+            _creator : req.user.id
+        }).then( (todo) => {
             if(todo){
                 resp.status(200).send({
                     todo
@@ -119,7 +126,10 @@ app.patch('/todos/:id', (req,resp) =>{
         body.completedAt = null;
     }
 
-    Todo.findByIdAndUpdate(id,{$set :body}, {new : true}).then( (todo) => {
+    Todo.findOneAndUpdate({
+        _id : id,
+        _creator : req.user.id 
+    },{$set :body}, {new : true}).then( (todo) => {
         if(!todo)
             return resp.status(404).send({error : 'id not found'});
         return resp.status(200).send({todo});
