@@ -17,10 +17,11 @@ var app = express();
 app.use(bodyParser.json());
 
 
-app.post('/todos', (req,res) => {
+app.post('/todos', authenticate, (req,res) => {
     console.log(req.body);
     var newTodo = new Todo({
-        text : req.body.text
+        text : req.body.text,
+        _creator : req.user._id
     });
     newTodo.save().then( (doc) => {
 
@@ -32,8 +33,10 @@ app.post('/todos', (req,res) => {
     });
 });
 
-app.get('/todos', (req,resp) =>{
-    Todo.find().then( (todos) => {
+app.get('/todos', authenticate, (req,resp) =>{
+    Todo.find({
+        _creator : req.user._id
+    }).then( (todos) => {
         resp.send({
             todos
         })
